@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>adminPage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body{
+            background-color:white;
+        }
+        .center{
+background-color: lightgray;
+width: 800px;
+border: 5px solid black;
+padding: 50px;
+margin: auto;
+}        
+    </style> 
+</head>
+<body>
+    <div class="center">
+    <h1 style="text-align:center;color: black"><b>SHOPPING</b></h1>
+    <form onsubmit="saveToLocalStorage(event)">
+<label for="text"> </label> <!-- class="form-label" --><b>Product Price</b></label> <br>
+<!-- <div id="amount" class= "input-group input-group-sm">
+    <div id="amount" class="input-group-text">Rs.</div> -->
+<input id="price" type="number" name="price" > <!-- class="form-control" --><br>
+<!-- </div> -->
+<label><b>Poduct Name</b></label><br>
+<input id="name"type="text" name="name"><br>
+<label for = "category" class="form-label"><b>Product Category</b></label><br>
+<select id="category" > <!-- class="form-select" -->
+    <option>Food</option>
+    <option>Skincare</option>
+    <option>Fashion</option>
+    <option>Electronics</option>
+    <option>Home Furnishing</option>
+</select>
+<!-- <input id="category" type="category" name="category"> --><br> <br>
+<button type="submit" style="background-color:white">List Product</button>
+    </form>
+    
+    <ul id='listOfProducts'></ul>
+    <script src ='https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.0/axios.min.js'></script>
+    <script>
+        function saveToLocalStorage(event){
+            event.preventDefault();
+            const price=event.target.price.value;
+            const name=event.target.name.value;
+            const category=event.target.category.value;
+            const obj={
+                price,name,category
+            }
+
+            axios.post("https://crudcrud.com/api/4241bb9354354911baf4e3e67628a48e/adminPage", obj)
+            .then((response) => {
+                showNewProductOnScreen(response.data)
+            })
+            .catch((err) => {
+                document.body.innerHTML = document.body.innerHTML + "<h3> Something went wrong </h3>"
+                console.log(err)
+            })
+
+        
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            axios.get("https://crudcrud.com/api/4241bb9354354911baf4e3e67628a48e/adminPage")
+            .then((response) => {
+                console.log(response)
+
+                for(var i=0; i<response.data.length; i++){
+                    showNewProductOnScreen(response.data[i])
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+        })
+
+        function showNewProductOnScreen(product){
+            document.getElementById('price').value='';
+            document.getElementById('name').value='';
+            document.getElementById('category').value='';
+
+            const parentNode=document.getElementById('listOfProducts');
+            
+            const childHTML=`<li id=${product._id}>${product.price} ${product.name} ${product.category}
+                <button onclick=deleteProduct('${product._id}')>Delete Product</button> 
+                </li>` 
+                parentNode.innerHTML = parentNode.innerHTML + childHTML;
+        }
+
+        // function editProduct(price,name,category,productId){
+        //     document.getElementById('price').value=price;
+        //     document.getElementById('name').value=name;
+        //     document.getElementById('category').value=category;
+
+        //     deleteProduct(productId)
+        // } 
+
+        function deleteProduct(productId){
+            axios.delete(`https://crudcrud.com/api/4241bb9354354911baf4e3e67628a48e/adminPage/${productId}`)
+            .then((response) => {
+                removeProductFromScreen(productId)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            /* console.log(description)
+            localStorage.removeItem(description);
+            removeUserFromScreen(description); */
+        }
+         function removeProductFromScreen(productId){
+            const parentNode=document.getElementById('listOfProducts');
+            const childNodeToBeDeleted= document.getElementById(productId)
+            parentNode.removeChild(childNodeToBeDeleted)
+         }
+         </script>
+         </div>
+</body>
+</html>
